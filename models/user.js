@@ -13,8 +13,10 @@ const userSchema = {
   password: {
     type: String,
     required: true
+  }, profilePicId: {
+    type: String
   },
- 
+
 };
 
 module.exports = mongoose.model('User', userSchema);

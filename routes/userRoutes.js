@@ -6,7 +6,24 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
+const multer = require('multer');
+const path = require('path');
+const crypto = require('crypto');
+const methodOverride = require('method-override');
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+// create storage 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/tmp/my-uploads')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix)
+  }
+})
 
+const upload = multer({ storage: storage });
 
 // get all users
 router.get("/users", async (req, res) => {
@@ -129,9 +146,8 @@ router.post("/login", async (req, res) => {
 //    update user
 
 router.post("/edituser", auth, async (req, res) => {
-  const { name, email, city, age, password, bio } = req.body;
+  const { name, email, password } = req.body;
   const { userId } = req.tokenUser;
-
   const foundUser = await User.findOne({
     _id: mongoose.Types.ObjectId(userId),
   });
@@ -149,9 +165,6 @@ router.post("/edituser", auth, async (req, res) => {
         $set: {
           name: name,
           email: email.toLowerCase(),
-          city: city,
-          age: age,
-          bio: bio,
         },
       },
       { new: true }
@@ -163,6 +176,28 @@ router.post("/edituser", auth, async (req, res) => {
 
 //            get user
 
+router.post(
+  '/editprofilepic/',
+  auth,
+  upload.single('image'),
+  async (req, res) => {
+    gfs.files.findOne({ _id: req.file.id }, async (err, file) => {
+      if (!file || file.length === 0) {
+        return res
+          .status(404)
+          .json({ err: 'no file exists, file upload failed' });
+      }
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: req.tokenUser.userId },
+        {
+          profilePicId: file._id,
+        },
+        { new: true }
+      );
+      return res.json(updatedUser);
+    });
+  }
+);
 router.get("/user/:id", async (req, res) => {
   const userId = req.params;
   const foundUser = await User.findOne({ _id: userId });
