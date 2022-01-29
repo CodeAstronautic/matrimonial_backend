@@ -35,6 +35,7 @@ router.get("/getauth", auth, async (req, res) => {
 
 // register new user
 router.post("/register", async (req, res) => {
+ 
   if (req.body.password.length < 6) {
     return res.json({ err: "Password must be at least 6 characters" });
   }
@@ -95,6 +96,7 @@ router.post("/login", async (req, res) => {
             tokenUser: {
               userId: user._id,
               email: user.email,
+               name: user.name
             },
           },
           "local development secret",
