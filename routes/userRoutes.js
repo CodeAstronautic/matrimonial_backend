@@ -6,32 +6,31 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
-const multer = require('multer');
-const path = require('path');
-const crypto = require('crypto');
-const methodOverride = require('method-override');
-const GridFsStorage = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
-// create storage 
+const multer = require("multer");
+
+// create storage
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/tmp/my-uploads')
+    cb(null, "/tmp/my-uploads");
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix)
-  }
-})
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
 
 const upload = multer({ storage: storage });
 
 // get all users
+
 router.get("/users", async (req, res) => {
   const allUsers = await User.find().select("-password");
   res.send(allUsers);
 });
 
 // get user by id
+
 router.get("/getuser/:userid", async (req, res) => {
   const userById = await User.findOne({
     _id: req.params.userid.toString(),
@@ -40,6 +39,7 @@ router.get("/getuser/:userid", async (req, res) => {
 });
 
 // get auth info
+
 router.get("/getauth", auth, async (req, res) => {
   User.findOne({ _id: mongoose.Types.ObjectId(req.tokenUser.userId) })
     .then((result) => {
@@ -51,6 +51,7 @@ router.get("/getauth", auth, async (req, res) => {
 });
 
 // register new user
+
 router.post("/register", async (req, res) => {
   if (req.body.password.length < 6) {
     return res.json({ err: "Password must be at least 6 characters" });
@@ -68,6 +69,7 @@ router.post("/register", async (req, res) => {
   }
 
   // hash password
+
   const hashedPw = await bcrypt.hash(req.body.password, 12);
 
   const newUser = new User({
@@ -146,46 +148,73 @@ router.post("/login", async (req, res) => {
 //    update user
 
 router.post("/edituser", auth, async (req, res) => {
-  const { name, email, password } = req.body;
+  const {
+    name,
+    email,
+    password,
+    maritalState,
+    Age,
+    Religion,
+    MotherTongue,
+    locaion,
+    Height,
+    dateOfBirth,
+    Diet,
+    sunSign,
+    Heal,
+  } = req.body;
   const { userId } = req.tokenUser;
+  console.log(userId);
   const foundUser = await User.findOne({
     _id: mongoose.Types.ObjectId(userId),
   });
-  const passwordsMatch = await bcrypt.compare(password, foundUser.password);
-  if (!passwordsMatch) {
-    const error = new Error("Not authenticated");
-    error.code = 401;
-    res.status(401).send(error);
-  } else if (passwordsMatch) {
-    User.findOneAndUpdate(
-      {
-        _id: mongoose.Types.ObjectId(userId),
+  console.log(foundUser, "foundUserfoundUser");
+  User.findOneAndUpdate(
+    {
+      _id: mongoose.Types.ObjectId(userId),
+    },
+    {
+      $set: {
+        name: name,
+        email: email.toLowerCase(),
+        maritalState: maritalState,
+        state: req.body.contactDetails.state,
+        Country: req.body.contactDetails.Country,
+        city: req.body.contactDetails.city,
+        Religion: Religion,
+        Age: Age,
+        MotherTongue: MotherTongue,
+        locaion: locaion,
+        Height: Height,
+        dateOfBirth: dateOfBirth,
+        Diet: Diet,
+        sunSign: sunSign,
+        Heal: Heal,
       },
-      {
-        $set: {
-          name: name,
-          email: email.toLowerCase(),
-        },
-      },
-      { new: true }
-    ).then((result) => {
+    },
+    { new: true }
+  )
+    .then((result) => {
+      console.log(result);
       res.send(result);
+    })
+    .catch((err) => {
+      res.json(err);
     });
-  }
 });
 
 //            get user
 
 router.post(
-  '/editprofilepic/',
+  "/editprofilepic/",
   auth,
-  upload.single('image'),
+  upload.single("image"),
   async (req, res) => {
     gfs.files.findOne({ _id: req.file.id }, async (err, file) => {
       if (!file || file.length === 0) {
         return res
           .status(404)
-          .json({ err: 'no file exists, file upload failed' });
+          .json({ err: "no file exists, file upload failed" });
       }
       const updatedUser = await User.findOneAndUpdate(
         { _id: req.tokenUser.userId },
