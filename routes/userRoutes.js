@@ -8,19 +8,57 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
 const multer = require("multer");
 
-// create storage
+// image parsing / storing
+const path = require('path');
+const crypto = require('crypto');
+const methodOverride = require('method-override');
+const GridFsStorage = require('multer-gridfs-storage').GridFsStorage;
+const Grid = require('gridfs-stream');
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "/tmp/my-uploads");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix);
+///////////// IMAGE STUFF
+router.use(methodOverride('_method'));
+
+const conn = mongoose.createConnection("mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority");
+// Init gfs
+let gfs;
+conn.once('open', () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+// create storage engine
+const storage = new GridFsStorage({
+  url: "mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority",
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString('hex') + path.extname(file.originalname);
+        const fileInfo = {
+          filename: filename,
+          bucketName: 'uploads',
+        };
+        resolve(fileInfo);
+      });
+    });
   },
 });
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
+// create storage
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "/uploads");
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     cb(null, file.fieldname + "-" + uniqueSuffix);
+//   },
+// });
+
+// const upload = multer({ storage: storage });
 
 // get all users
 
@@ -178,9 +216,28 @@ router.post("/edituser", auth, async (req, res) => {
         name: name,
         email: email.toLowerCase(),
         maritalState: maritalState,
-        state: req.body.contactDetails.state,
-        Country: req.body.contactDetails.Country,
-        city: req.body.contactDetails.city,
+        contactDetails: {
+          state: req.body.contactDetails && req.body.contactDetails.state,
+          Country: req.body.contactDetails && req.body.contactDetails.Country,
+          city: req.body.contactDetails && req.body.contactDetails.city,
+        },
+        EducationAndCareer: {
+          HighestQualification:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.HighestQualification,
+          WorkingAs:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.WorkingAs,
+          AnnualIncome:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.AnnualIncome,
+          Workingwith:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.Workingwith,
+          ProfessionalArea:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.ProfessionalArea,
+        },
         Religion: Religion,
         Age: Age,
         MotherTongue: MotherTongue,
@@ -206,23 +263,25 @@ router.post("/edituser", auth, async (req, res) => {
 //            get user
 
 router.post(
-  "/editprofilepic/",
+  '/editprofilepic/',
   auth,
-  upload.single("image"),
+  upload.single('image'),
   async (req, res) => {
     gfs.files.findOne({ _id: req.file.id }, async (err, file) => {
       if (!file || file.length === 0) {
         return res
           .status(404)
-          .json({ err: "no file exists, file upload failed" });
+          .json({ err: 'no file exists, file upload failed' });
       }
+      console.log(file, "filefilefilefile")
       const updatedUser = await User.findOneAndUpdate(
         { _id: req.tokenUser.userId },
         {
-          profilePicId: file._id,
+          profilePicId: file.filename,
         },
         { new: true }
       );
+      console.log(updatedUser, "updatedUser")
       return res.json(updatedUser);
     });
   }
