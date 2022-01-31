@@ -9,21 +9,23 @@ const auth = require("../middlewares/auth");
 const multer = require("multer");
 
 // image parsing / storing
-const path = require('path');
-const crypto = require('crypto');
-const methodOverride = require('method-override');
-const GridFsStorage = require('multer-gridfs-storage').GridFsStorage;
-const Grid = require('gridfs-stream');
+const path = require("path");
+const crypto = require("crypto");
+const methodOverride = require("method-override");
+const GridFsStorage = require("multer-gridfs-storage").GridFsStorage;
+const Grid = require("gridfs-stream");
 
 ///////////// IMAGE STUFF
-router.use(methodOverride('_method'));
+router.use(methodOverride("_method"));
 
-const conn = mongoose.createConnection("mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority");
+const conn = mongoose.createConnection(
+  "mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority"
+);
 // Init gfs
 let gfs;
-conn.once('open', () => {
+conn.once("open", () => {
   gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads');
+  gfs.collection("uploads");
 });
 // create storage engine
 const storage = new GridFsStorage({
@@ -34,10 +36,10 @@ const storage = new GridFsStorage({
         if (err) {
           return reject(err);
         }
-        const filename = buf.toString('hex') + path.extname(file.originalname);
+        const filename = buf.toString("hex") + path.extname(file.originalname);
         const fileInfo = {
           filename: filename,
-          bucketName: 'uploads',
+          bucketName: "uploads",
         };
         resolve(fileInfo);
       });
@@ -214,7 +216,7 @@ router.post("/edituser", auth, async (req, res) => {
     {
       $set: {
         name: name,
-        email: email.toLowerCase(),
+        email: email,
         maritalState: maritalState,
         contactDetails: {
           state: req.body.contactDetails && req.body.contactDetails.state,
@@ -237,6 +239,18 @@ router.post("/edituser", auth, async (req, res) => {
           ProfessionalArea:
             req.body.EducationAndCareer &&
             req.body.EducationAndCareer.ProfessionalArea,
+        },
+        BasicsAndLifestyle: {
+          Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age,
+          DateofBirth: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.DateofBirth,
+          MaritalStatus: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.MaritalStatus,
+          Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height,
+          Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin,
+          Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet,
+          PersonalValues: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.PersonalValues,
+          SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign,
+          BloodGroup: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.BloodGroup,
+          Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal,
         },
         Religion: Religion,
         Age: Age,
@@ -263,17 +277,17 @@ router.post("/edituser", auth, async (req, res) => {
 //            get user
 
 router.post(
-  '/editprofilepic/',
+  "/editprofilepic/",
   auth,
-  upload.single('image'),
+  upload.single("image"),
   async (req, res) => {
     gfs.files.findOne({ _id: req.file.id }, async (err, file) => {
       if (!file || file.length === 0) {
         return res
           .status(404)
-          .json({ err: 'no file exists, file upload failed' });
+          .json({ err: "no file exists, file upload failed" });
       }
-      console.log(file, "filefilefilefile")
+      console.log(file, "filefilefilefile");
       const updatedUser = await User.findOneAndUpdate(
         { _id: req.tokenUser.userId },
         {
@@ -281,7 +295,7 @@ router.post(
         },
         { new: true }
       );
-      console.log(updatedUser, "updatedUser")
+      console.log(updatedUser, "updatedUser");
       return res.json(updatedUser);
     });
   }
