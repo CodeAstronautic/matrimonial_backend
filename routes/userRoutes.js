@@ -242,16 +242,65 @@ router.post("/edituser", auth, async (req, res) => {
         },
         BasicsAndLifestyle: {
           Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age,
-          DateofBirth: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.DateofBirth,
-          MaritalStatus: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.MaritalStatus,
-          Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height,
-          Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin,
+          DateofBirth:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.DateofBirth,
+          MaritalStatus:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.MaritalStatus,
+          Height:
+            req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height,
+          Grewupin:
+            req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin,
           Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet,
-          PersonalValues: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.PersonalValues,
-          SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign,
-          BloodGroup: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.BloodGroup,
+          PersonalValues:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.PersonalValues,
+          SunSign:
+            req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign,
+          BloodGroup:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.BloodGroup,
           Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal,
         },
+        ReligiousBackground: {
+          Religion:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.Religion,
+          Community:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.Community,
+          SubCommunity:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.SubCommunity,
+          MotherTongue:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.MotherTongue,
+          CanSpeak:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.CanSpeak,
+        },
+        Familydetails: {
+          FatherStatus:
+            req.body.Familydetails && req.body.Familydetails.FatherStatus,
+          MotherStatus:
+            req.body.Familydetails && req.body.Familydetails.MotherStatus,
+          FamilyLocation:
+            req.body.Familydetails && req.body.Familydetails.FamilyLocation,
+          NativePlace:
+            req.body.Familydetails && req.body.Familydetails.NativePlace,
+          NoofBrothers:
+            req.body.Familydetails && req.body.Familydetails.NoofBrothers,
+          NoofSisters:
+            req.body.Familydetails && req.body.Familydetails.NoofSisters,
+          FamilyType:
+            req.body.Familydetails && req.body.Familydetails.FamilyType,
+          FamilyValues:
+            req.body.Familydetails && req.body.Familydetails.FamilyValues,
+          FamilyAffluence:
+            req.body.Familydetails && req.body.Familydetails.FamilyAffluence,
+        },
+
         Religion: Religion,
         Age: Age,
         MotherTongue: MotherTongue,
