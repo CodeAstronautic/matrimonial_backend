@@ -300,7 +300,29 @@ router.post("/edituser", auth, async (req, res) => {
           FamilyAffluence:
             req.body.Familydetails && req.body.Familydetails.FamilyAffluence,
         },
-
+        LocationofGroom: {
+          CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence,
+          StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence,
+          ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus,
+          ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode,
+        },
+        HobbiesInterestsMore: {
+          Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies,
+          Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests,
+          FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic,
+          FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads,
+          preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies,
+          SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities,
+          FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine,
+          PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle,
+        },
+        BasicInfo: {
+          Age: req.body.BasicInfo && req.body.BasicInfo.Age,
+          Height: req.body.BasicInfo && req.body.BasicInfo.Height,
+          Religion: req.body.BasicInfo && req.body.BasicInfo.Religion,
+          Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue,
+          MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus,
+        },
         Religion: Religion,
         Age: Age,
         MotherTongue: MotherTongue,
