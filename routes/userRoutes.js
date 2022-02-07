@@ -8,19 +8,59 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
 const multer = require("multer");
 
-// create storage
+// image parsing / storing
+const path = require("path");
+const crypto = require("crypto");
+const methodOverride = require("method-override");
+const GridFsStorage = require("multer-gridfs-storage").GridFsStorage;
+const Grid = require("gridfs-stream");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "/tmp/my-uploads");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix);
+///////////// IMAGE STUFF
+router.use(methodOverride("_method"));
+
+const conn = mongoose.createConnection(
+  "mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority"
+);
+// Init gfs
+let gfs;
+conn.once("open", () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection("uploads");
+});
+// create storage engine
+const storage = new GridFsStorage({
+  url: "mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority",
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString("hex") + path.extname(file.originalname);
+        const fileInfo = {
+          filename: filename,
+          bucketName: "uploads",
+        };
+        resolve(fileInfo);
+      });
+    });
   },
 });
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
+// create storage
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "/uploads");
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     cb(null, file.fieldname + "-" + uniqueSuffix);
+//   },
+// });
+
+// const upload = multer({ storage: storage });
 
 // get all users
 
@@ -178,11 +218,113 @@ router.post("/edituser", auth, async (req, res) => {
     {
       $set: {
         name: name,
-        email: email.toLowerCase(),
+        email: email,
         maritalState: maritalState,
-        state: req.body.contactDetails.state,
-        Country: req.body.contactDetails.Country,
-        city: req.body.contactDetails.city,
+        contactDetails: {
+          state: req.body.contactDetails && req.body.contactDetails.state,
+          Country: req.body.contactDetails && req.body.contactDetails.Country,
+          city: req.body.contactDetails && req.body.contactDetails.city,
+        },
+        EducationAndCareer: {
+          HighestQualification:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.HighestQualification,
+          WorkingAs:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.WorkingAs,
+          AnnualIncome:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.AnnualIncome,
+          Workingwith:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.Workingwith,
+          ProfessionalArea:
+            req.body.EducationAndCareer &&
+            req.body.EducationAndCareer.ProfessionalArea,
+        },
+        BasicsAndLifestyle: {
+          Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age,
+          DateofBirth:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.DateofBirth,
+          MaritalStatus:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.MaritalStatus,
+          Height:
+            req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height,
+          Grewupin:
+            req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin,
+          Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet,
+          PersonalValues:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.PersonalValues,
+          SunSign:
+            req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign,
+          BloodGroup:
+            req.body.BasicsAndLifestyle &&
+            req.body.BasicsAndLifestyle.BloodGroup,
+          Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal,
+        },
+        ReligiousBackground: {
+          Religion:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.Religion,
+          Community:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.Community,
+          SubCommunity:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.SubCommunity,
+          MotherTongue:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.MotherTongue,
+          CanSpeak:
+            req.body.ReligiousBackground &&
+            req.body.ReligiousBackground.CanSpeak,
+        },
+        Familydetails: {
+          FatherStatus:
+            req.body.Familydetails && req.body.Familydetails.FatherStatus,
+          MotherStatus:
+            req.body.Familydetails && req.body.Familydetails.MotherStatus,
+          FamilyLocation:
+            req.body.Familydetails && req.body.Familydetails.FamilyLocation,
+          NativePlace:
+            req.body.Familydetails && req.body.Familydetails.NativePlace,
+          NoofBrothers:
+            req.body.Familydetails && req.body.Familydetails.NoofBrothers,
+          NoofSisters:
+            req.body.Familydetails && req.body.Familydetails.NoofSisters,
+          FamilyType:
+            req.body.Familydetails && req.body.Familydetails.FamilyType,
+          FamilyValues:
+            req.body.Familydetails && req.body.Familydetails.FamilyValues,
+          FamilyAffluence:
+            req.body.Familydetails && req.body.Familydetails.FamilyAffluence,
+        },
+        LocationofGroom: {
+          CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence,
+          StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence,
+          ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus,
+          ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode,
+        },
+        HobbiesInterestsMore: {
+          Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies,
+          Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests,
+          FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic,
+          FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads,
+          preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies,
+          SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities,
+          FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine,
+          PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle,
+        },
+        BasicInfo: {
+          Age: req.body.BasicInfo && req.body.BasicInfo.Age,
+          Height: req.body.BasicInfo && req.body.BasicInfo.Height,
+          Religion: req.body.BasicInfo && req.body.BasicInfo.Religion,
+          Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue,
+          MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus,
+        },
         Religion: Religion,
         Age: Age,
         MotherTongue: MotherTongue,
@@ -218,13 +360,15 @@ router.post(
           .status(404)
           .json({ err: "no file exists, file upload failed" });
       }
+      console.log(file, "filefilefilefile");
       const updatedUser = await User.findOneAndUpdate(
         { _id: req.tokenUser.userId },
         {
-          profilePicId: file._id,
+          profilePicId: file.filename,
         },
         { new: true }
       );
+      console.log(updatedUser, "updatedUser");
       return res.json(updatedUser);
     });
   }

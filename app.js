@@ -29,9 +29,11 @@ app.use(
 
 //  ROUTES 
 app.use("/user", userRoutes);
-
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/matrimonial/public/index.html'));
+});
 //Static file declaration
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, "matrimonial/build")));
 
 mongoose
   .connect(
