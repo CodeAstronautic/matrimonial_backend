@@ -7,13 +7,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth");
 const multer = require("multer");
-
+const MongoClient = require('mongodb').MongoClient;
 // image parsing / storing
 const path = require("path");
 const crypto = require("crypto");
 const methodOverride = require("method-override");
 const GridFsStorage = require("multer-gridfs-storage").GridFsStorage;
 const Grid = require("gridfs-stream");
+const { Router } = require("express");
 
 ///////////// IMAGE STUFF
 router.use(methodOverride("_method"));
@@ -371,14 +372,50 @@ router.post(
     });
   }
 );
-router.get("/user/:id", async (req, res) => {
-  const userId = req.params;
-  const foundUser = await User.findOne({ _id: userId });
-  if (!foundUser) {
-    res.status(404).send("User not found");
-  } else {
-    res.status(200).send(foundUser);
-  }
-});
 
+router.get("/:filename", (req, res) => {
+  let fileName = req.params.filename;
+  let dbName = "Matrimonial";
+  //Connect to the MongoDB client
+  MongoClient.connect("mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority", function (err, client) {
+    if (err) {
+      return res.render('index', { title: 'Uploaded Error', message: 'MongoClient Connection error', error: err.errMsg });
+    }
+    const db = client.db(dbName);
+
+    const collection = db.collection('uploads.files');
+    const collectionChunks = db.collection('uploads.chunks');
+    collection.find({ filename: fileName }).toArray(function (err, docs) {
+      console.log("Docs", docs);
+      if (docs) {
+        collectionChunks.find({ files_id: docs[0]._id }).sort({ n: 1 }).toArray(function (err, chunks) {
+          if (err) {
+            return res.render('index', { title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
+          }
+          if (!chunks || chunks.length === 0) {
+            //No data found
+            return res.render('index', { title: 'Download Error', message: 'No data found' });
+          }
+          console.log("Files")
+          //Append Chunks
+          let fileData = [];
+          for (let i = 0; i < chunks.length; i++) {
+            //This is in Binary JSON or BSON format, which is stored
+            //in fileData array in base64 endocoded string format
+            console.log("Base64")
+            fileData.push(chunks[i].data.toString('base64'));
+          }
+          console.log("FileDAta", fileData)
+          //Display the chunks using the data URI format
+          let finalFile = 'data:' + docs[0].contentType + ';base64,' + fileData.join('');
+          console.log(finalFile)
+         return res.status(200).send(finalFile);
+        });
+      } else {
+        res.json(err)
+      }
+
+    });
+  });
+})
 module.exports = router;
