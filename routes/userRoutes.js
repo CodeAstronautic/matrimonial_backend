@@ -376,7 +376,7 @@ router.get("/:filename", (req, res) => {
   //Connect to the MongoDB client
   MongoClient.connect("mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority", function (err, client) {
     if (err) {
-      return res.render('index', { title: 'Uploaded Error', message: 'MongoClient Connection error', error: err.errMsg });
+      return res.send({ title: 'Uploaded Error', message: 'MongoClient Connection error', error: err.errMsg });
     }
     const db = client.db(dbName);
 
@@ -386,11 +386,11 @@ router.get("/:filename", (req, res) => {
       if (docs) {
         collectionChunks.find({ files_id: docs[0]&&docs[0]?._id })?.sort({ n: 1 }).toArray(function (err, chunks) {
           if (err) {
-            return res.render('index', { title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
+            return res.send({ title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
           }
           if (!chunks || chunks.length === 0) {
             //No data found
-            return res.render('index', { title: 'Download Error', message: 'No data found' });
+            return res.send({ title: 'Download Error', message: 'No data found' });
           }
           //Append Chunks
           let fileData = [];
