@@ -207,11 +207,9 @@ router.post("/edituser", auth, async (req, res) => {
     Heal,
   } = req.body;
   const { userId } = req.tokenUser;
-  console.log(userId);
   const foundUser = await User.findOne({
     _id: mongoose.Types.ObjectId(userId),
   });
-  console.log(foundUser, "foundUserfoundUser");
   User.findOneAndUpdate(
     {
       _id: mongoose.Types.ObjectId(userId),
@@ -340,7 +338,6 @@ router.post("/edituser", auth, async (req, res) => {
     { new: true }
   )
     .then((result) => {
-      console.log(result);
       res.send(result);
     })
     .catch((err) => {
@@ -361,7 +358,6 @@ router.post(
           .status(404)
           .json({ err: "no file exists, file upload failed" });
       }
-      console.log(file, "filefilefilefile");
       const updatedUser = await User.findOneAndUpdate(
         { _id: req.tokenUser.userId },
         {
@@ -369,7 +365,6 @@ router.post(
         },
         { new: true }
       );
-      console.log(updatedUser, "updatedUser");
       return res.json(updatedUser);
     });
   }
@@ -388,9 +383,8 @@ router.get("/:filename", (req, res) => {
     const collection = db.collection('uploads.files');
     const collectionChunks = db.collection('uploads.chunks');
     collection.find({ filename: fileName }).toArray(function (err, docs) {
-      console.log("Docs", docs);
       if (docs) {
-        collectionChunks.find({ files_id: docs[0]._id }).sort({ n: 1 }).toArray(function (err, chunks) {
+        collectionChunks.find({ files_id: docs[0]&&docs[0]?._id })?.sort({ n: 1 }).toArray(function (err, chunks) {
           if (err) {
             return res.render('index', { title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
           }
@@ -398,19 +392,15 @@ router.get("/:filename", (req, res) => {
             //No data found
             return res.render('index', { title: 'Download Error', message: 'No data found' });
           }
-          console.log("Files")
           //Append Chunks
           let fileData = [];
           for (let i = 0; i < chunks.length; i++) {
             //This is in Binary JSON or BSON format, which is stored
             //in fileData array in base64 endocoded string format
-            console.log("Base64")
             fileData.push(chunks[i].data.toString('base64'));
           }
-          console.log("FileDAta", fileData)
           //Display the chunks using the data URI format
           let finalFile = 'data:' + docs[0].contentType + ';base64,' + fileData.join('');
-          console.log(finalFile)
          return res.status(200).send(finalFile);
         });
       } else {
