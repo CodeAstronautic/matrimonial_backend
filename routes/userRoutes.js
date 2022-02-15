@@ -144,7 +144,7 @@ router.post("/login", async (req, res) => {
       });
     } else {
       if (!user) {
-        return res.json({ err: "No user found with this email" });
+        return res.json({status:401, err: "No user found with this email" });
       }
       const passwordsMatch = await bcrypt.compare(
         req.body.password,
@@ -182,7 +182,7 @@ router.post("/login", async (req, res) => {
           },
         });
       } else {
-        return res.json({ err: "Incorrect password" });
+        return res.send({status:401, err: "Incorrect password" });
       }
     }
   });
