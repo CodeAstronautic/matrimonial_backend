@@ -36,4 +36,11 @@ router.post("/partner", auth, async(req, res) => {
 
 })
 
+router.get("/getpartner/:id", async(req, res) => {
+    const userById = await Partner.findOne({
+        _id: req.params.id.toString(),
+    })
+    res.send(userById);
+});
+
 module.exports = router
