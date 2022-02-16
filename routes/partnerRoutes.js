@@ -26,10 +26,14 @@ router.post("/partner", auth, async(req, res) => {
         motherTongue: motherTongue,
         userId: mongoose.Types.ObjectId(userId)
     })
+    console.log(partner)
     partner.save().then((result) => {
+        console.log(result,"result")
         return res.json(result)
     }).catch((err) => {
         res.status(400).send(err);
     });
 
 })
+
+module.exports = router
