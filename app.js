@@ -29,7 +29,7 @@ app.use(
 
 //  ROUTES 
 app.use("/user", userRoutes);
-app.use("/life", lifeRoutes);
+// app.use("/life", lifeRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose
