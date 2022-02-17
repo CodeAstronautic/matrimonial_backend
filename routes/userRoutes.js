@@ -131,38 +131,6 @@ router.post("/register", async(req, res) => {
     });
 });
 
-
-router.post("/register-via-other", async(req, res) => {
-
-   console.log(req.body)
-    if (req.body.name.length < 4 || req.body.name.length > 12) {
-        return res.json({ err: "Name must be between 4 and 12 characters" });
-    }
-
-    const existingUser = await User.findOne({ mobile: req.body.mobile });
-    if (existingUser) {
-        return res.json({ err: "Profile with this Mobile already exists" });
-    }
-
-    // hash password
-
-    const newUser = new User({
-        name: req.body.name,
-        mobile: req.body.mobile,
-        gender:req.body.gender
-    });
-
-    newUser
-        .save()
-        .then((result) => {
-            res.json(result);
-        })
-
-    .catch((err) => {
-        res.status(400).send(err);
-    });
-});
-
 // user login
 
 router.post("/login", async(req, res) => {
