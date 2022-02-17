@@ -158,7 +158,7 @@ router.post("/login", async(req, res) => {
                             name: user.name
                         },
                     },
-                    "local development secret", { expiresIn: "3hr" }
+                    "local development secret"
                 );
 
                 const userInfo = {
@@ -348,7 +348,7 @@ router.get("/:filename", (req, res) => {
         const collectionChunks = db.collection('uploads.chunks');
         collection.find({ filename: fileName }).toArray(function(err, docs) {
             if (docs) {
-                collectionChunks.find({ files_id: docs[0] && docs[0]?._id })?.sort({ n: 1 }).toArray(function(err, chunks) {
+                collectionChunks.find({ files_id: docs[0] && docs[0]._id }).sort({ n: 1 }).toArray(function(err, chunks) {
                     if (err) {
                         return res.send({ title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
                     }
