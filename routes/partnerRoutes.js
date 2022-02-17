@@ -36,4 +36,32 @@ router.post("/partner", auth, async(req, res) => {
 
 })
 
+router.get("/getpartner/:id", async(req, res) => {
+    const userById = await Partner.findOne({
+        _id: req.params.id.toString(),
+    })
+    res.send(userById);
+});
+
+router.get('/getpartners', async (req, res) => {
+	const userById = await Partner.find();
+	console.log(userById, 'new');
+	res.send(userById);
+});
+router.get('/filter', async (req, res) => {
+	const filters = req.query;
+	const userById = await Partner.find();
+	console.log(filters, 'kjdlkfgjd');
+	const filteredUsers = userById.filter((user) => {
+		console.log(user.maritalStatus == filters, filters, 'user.maritalStatus==filtersuser.maritalStatus==filters');
+		if (
+			user.maritalStatus == filters.maritalStatus ||
+			(user.age.from >= filters.from && user.age.to <= filters.to)
+		) {
+			return true;
+		}
+	});
+	res.json(filteredUsers);
+});
+
 module.exports = router
