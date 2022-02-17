@@ -5,13 +5,21 @@ const userSchema = {
     type: String,
     required: true,
   },
-  email: {
+  mobile: {
     type: String,
     required: true,
   },
-  password: {
+  gender: {
     type: String,
     required: true,
+  },
+  email: {
+    type: String,
+   
+  },
+  password: {
+    type: String,
+   
   },
   profilePicId: {
     type: String,
