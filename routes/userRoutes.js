@@ -73,9 +73,11 @@ router.get("/users", async(req, res) => {
 // get user by id
 
 router.get("/getuser/:userid", async(req, res) => {
+    console.log(req.params.userid)
     const userById = await User.findOne({
         _id: req.params.userid.toString(),
-    }).select("-password");
+    });
+   
     res.send(userById);
 });
 
@@ -123,7 +125,34 @@ router.post("/register", async(req, res) => {
     newUser
         .save()
         .then((result) => {
-            res.json(result);
+            const token = jwt.sign({
+                tokenUser: {
+                    userId: result._id,
+                    email: result.email,
+                    name: result.name
+                },
+            },
+            "local development secret"
+        );
+
+        const userInfo = {
+            age: result.age,
+            city: result.city,
+            name: result.name,
+            email: result.email,
+            profilePicId: result.profilePicId,
+            coverPicId: result.coverPicId,
+            _id: result._id,
+        };
+
+        res.json({
+            status: "success",
+            message: "Signup successful",
+            data: {
+                user: userInfo,
+                token,
+            },
+        });
         })
 
     .catch((err) => {
@@ -208,7 +237,7 @@ router.post("/edituser", auth, async(req, res) => {
     const foundUser = await User.findOne({
         _id: mongoose.Types.ObjectId(userId),
     });
-    console.log(foundUser , "found")
+    console.log(foundUser , "found",req.body)
     User.findOneAndUpdate({
             _id: mongoose.Types.ObjectId(userId),
         }, {
@@ -222,78 +251,77 @@ router.post("/edituser", auth, async(req, res) => {
                     city: req.body.contactDetails && req.body.contactDetails.city,
                 },
                 EducationAndCareer: {
-                    HighestQualification: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.HighestQualification,
+                    HighestQualification: req.body.EducationAndCareer &&req.body.EducationAndCareer.HighestQualification || foundUser.EducationAndCareer[0]?.HighestQualification,
                     WorkingAs: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.WorkingAs,
+                        req.body.EducationAndCareer.WorkingAs || foundUser.EducationAndCareer[0]?.WorkingAs,
                     AnnualIncome: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.AnnualIncome,
+                        req.body.EducationAndCareer.AnnualIncome || foundUser.EducationAndCareer[0]?.AnnualIncome,
                     Workingwith: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.Workingwith,
+                        req.body.EducationAndCareer.Workingwith || foundUser.EducationAndCareer[0]?.Workingwith,
                     ProfessionalArea: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.ProfessionalArea,
+                        req.body.EducationAndCareer.ProfessionalArea || foundUser.EducationAndCareer[0]?.ProfessionalArea,
                 },
                 BasicsAndLifestyle: {
-                    Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age|| foundUser.BasicsAndLifestyle[0].Age,
+                    Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age|| foundUser.BasicsAndLifestyle[0]?.Age,
                     DateofBirth: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.DateofBirth||foundUser.BasicsAndLifestyle[0].DateofBirth,
+                        req.body.BasicsAndLifestyle.DateofBirth||foundUser.BasicsAndLifestyle[0]?.DateofBirth,
                     MaritalStatus: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.MaritalStatus||foundUser.BasicsAndLifestyle[0].MaritalStatus,
-                    Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height||foundUser.BasicsAndLifestyle[0].Height,
-                    Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin||foundUser.BasicsAndLifestyle[0].Grewupin,
-                    Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet||foundUser.BasicsAndLifestyle[0].Diet,
+                        req.body.BasicsAndLifestyle.MaritalStatus||foundUser.BasicsAndLifestyle[0]?.MaritalStatus,
+                    Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height||foundUser.BasicsAndLifestyle[0]?.Height,
+                    Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin||foundUser.BasicsAndLifestyle[0]?.Grewupin,
+                    Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet||foundUser.BasicsAndLifestyle[0]?.Diet,
                     PersonalValues: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.PersonalValues||foundUser.BasicsAndLifestyle[0].PersonalValues,
-                    SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign||foundUser.BasicsAndLifestyle[0].SunSign,
+                        req.body.BasicsAndLifestyle.PersonalValues||foundUser.BasicsAndLifestyle[0]?.PersonalValues,
+                    SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign||foundUser.BasicsAndLifestyle[0]?.SunSign,
                     BloodGroup: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.BloodGroup||foundUser.BasicsAndLifestyle[0].BloodGroup,
-                    Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal||foundUser.BasicsAndLifestyle[0].Heal,
+                        req.body.BasicsAndLifestyle.BloodGroup||foundUser.BasicsAndLifestyle[0]?.BloodGroup,
+                    Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal||foundUser.BasicsAndLifestyle[0]?.Heal,
                 },
                 ReligiousBackground: {
                     Religion: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.Religion||foundUser.ReligiousBackground[0].Religion,
+                        req.body.ReligiousBackground.Religion||foundUser.ReligiousBackground[0]?.Religion,
                     Community: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.Community||foundUser.ReligiousBackground[0].Community,
+                        req.body.ReligiousBackground.Community||foundUser.ReligiousBackground[0]?.Community,
                     SubCommunity: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.SubCommunity||foundUser.ReligiousBackground[0].SubCommunity,
+                        req.body.ReligiousBackground.SubCommunity||foundUser.ReligiousBackground[0]?.SubCommunity,
                     MotherTongue: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.MotherTongue||foundUser.ReligiousBackground[0].MotherTongue,
+                        req.body.ReligiousBackground.MotherTongue||foundUser.ReligiousBackground[0]?.MotherTongue,
                     CanSpeak: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.CanSpeak||foundUser.ReligiousBackground[0].CanSpeak,
+                        req.body.ReligiousBackground.CanSpeak||foundUser.ReligiousBackground[0]?.CanSpeak,
                 },
                 Familydetails: {
-                    FatherStatus: req.body.Familydetails && req.body.Familydetails.FatherStatus||foundUser.ReligiousBackground[0].FatherStatus,
-                    MotherStatus: req.body.Familydetails && req.body.Familydetails.MotherStatus||foundUser.ReligiousBackground[0].MotherStatus,
-                    FamilyLocation: req.body.Familydetails && req.body.Familydetails.FamilyLocation||foundUser.ReligiousBackground[0].FamilyLocation,
-                    NativePlace: req.body.Familydetails && req.body.Familydetails.NativePlace||foundUser.ReligiousBackground[0].NoofBrothers,
-                    NoofBrothers: req.body.Familydetails && req.body.Familydetails.NoofBrothers||foundUser.ReligiousBackground[0].NoofBrothers,
-                    NoofSisters: req.body.Familydetails && req.body.Familydetails.NoofSisters||foundUser.ReligiousBackground[0].NoofSisters,
-                    FamilyType: req.body.Familydetails && req.body.Familydetails.FamilyType||foundUser.ReligiousBackground[0].FamilyType,
-                    FamilyValues: req.body.Familydetails && req.body.Familydetails.FamilyValues||foundUser.ReligiousBackground[0].FamilyValues,
-                    FamilyAffluence: req.body.Familydetails && req.body.Familydetails.FamilyAffluence||foundUser.ReligiousBackground[0].FamilyAffluence,
+                    FatherStatus: req.body.Familydetails && req.body.Familydetails.FatherStatus||foundUser.Familydetails[0]?.FatherStatus,
+                    MotherStatus: req.body.Familydetails && req.body.Familydetails.MotherStatus||foundUser.Familydetails[0]?.MotherStatus,
+                    FamilyLocation: req.body.Familydetails && req.body.Familydetails.FamilyLocation||foundUser.Familydetails[0]?.FamilyLocation,
+                    NativePlace: req.body.Familydetails && req.body.Familydetails.NativePlace||foundUser.Familydetails[0]?.NoofBrothers,
+                    NoofBrothers: req.body.Familydetails && req.body.Familydetails.NoofBrothers||foundUser.Familydetails[0]?.NoofBrothers,
+                    NoofSisters: req.body.Familydetails && req.body.Familydetails.NoofSisters||foundUser.Familydetails[0]?.NoofSisters,
+                    FamilyType: req.body.Familydetails && req.body.Familydetails.FamilyType||foundUser.Familydetails[0]?.FamilyType,
+                    FamilyValues: req.body.Familydetails && req.body.Familydetails.FamilyValues||foundUser.Familydetails[0]?.FamilyValues,
+                    FamilyAffluence: req.body.Familydetails && req.body.Familydetails.FamilyAffluence||foundUser.Familydetails[0]?.FamilyAffluence,
                 },
                 LocationofGroom: {
-                    CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence||foundUser.LocationofGroom[0].CurrentResidence,
-                    StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence||foundUser.LocationofGroom[0].StateofResidence,
-                    ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus||foundUser.LocationofGroom[0].ResidencyStatus,
-                    ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode||foundUser.LocationofGroom[0].ZipPincode,
+                    CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence||foundUser.LocationofGroom[0]?.CurrentResidence,
+                    StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence||foundUser.LocationofGroom[0]?.StateofResidence,
+                    ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus||foundUser.LocationofGroom[0]?.ResidencyStatus,
+                    ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode||foundUser.LocationofGroom[0]?.ZipPincode,
                 },
                 HobbiesInterestsMore: {
-                    Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies||foundUser.HobbiesInterestsMore[0].Hobbies,
-                    Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests||foundUser.HobbiesInterestsMore[0].Interests,
-                    FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic||foundUser.HobbiesInterestsMore[0].FavouriteMusic,
-                    FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads||foundUser.HobbiesInterestsMore[0].FavouriteReads,
-                    preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies||foundUser.HobbiesInterestsMore[0].preferredMovies,
-                    SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities||foundUser.HobbiesInterestsMore[0].SportsFitnessActivities,
-                    FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine||foundUser.HobbiesInterestsMore[0].FavouriteCusisine,
-                    PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle||foundUser.HobbiesInterestsMore[0].PreferredDressStyle,
+                    Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies||foundUser.HobbiesInterestsMore[0]?.Hobbies,
+                    Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests||foundUser.HobbiesInterestsMore[0]?.Interests,
+                    FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic||foundUser.HobbiesInterestsMore[0]?.FavouriteMusic,
+                    FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads||foundUser.HobbiesInterestsMore[0]?.FavouriteReads,
+                    preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies||foundUser.HobbiesInterestsMore[0]?.preferredMovies,
+                    SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities||foundUser.HobbiesInterestsMore[0]?.SportsFitnessActivities,
+                    FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine||foundUser.HobbiesInterestsMore[0]?.FavouriteCusisine,
+                    PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle||foundUser.HobbiesInterestsMore[0]?.PreferredDressStyle,
                 },
                 BasicInfo: {
-                    Age: req.body.BasicInfo && req.body.BasicInfo.Age|| foundUser.BasicInfo[0].Age,
-                    Height: req.body.BasicInfo && req.body.BasicInfo.Height|| foundUser.BasicInfo[0].Height,
-                    Religion: req.body.BasicInfo && req.body.BasicInfo.Religion|| foundUser.BasicInfo[0].Religion,
-                    Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue|| foundUser.BasicInfo[0].Mothertongue,
-                    MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus|| foundUser.BasicInfo[0].MaritalStatus,
+                    Age: req.body.BasicInfo && req.body.BasicInfo.Age|| foundUser.BasicInfo[0]?.Age,
+                    Height: req.body.BasicInfo && req.body.BasicInfo.Height|| foundUser.BasicInfo[0]?.Height,
+                    Religion: req.body.BasicInfo && req.body.BasicInfo.Religion|| foundUser.BasicInfo[0]?.Religion,
+                    Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue|| foundUser.BasicInfo[0]?.Mothertongue,
+                    MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus|| foundUser.BasicInfo[0]?.MaritalStatus,
                 },
                 Religion: Religion,
                 Age: Age,
@@ -307,7 +335,9 @@ router.post("/edituser", auth, async(req, res) => {
             },
         }, { new: true })
         .then((result) => {
+            console.log(result , "result")
             res.send(result);
+
         })
         .catch((err) => {
             res.json(err);
@@ -349,7 +379,7 @@ router.get("/:filename", (req, res) => {
         const collectionChunks = db.collection('uploads.chunks');
         collection.find({ filename: fileName }).toArray(function(err, docs) {
             if (docs) {
-                collectionChunks.find({ files_id: docs[0] && docs[0]._id }).sort({ n: 1 }).toArray(function(err, chunks) {
+                collectionChunks.find({ files_id: docs[0] && docs[0]?._id }).sort({ n: 1 }).toArray(function(err, chunks) {
                     if (err) {
                         return res.send({ title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
                     }
@@ -365,7 +395,7 @@ router.get("/:filename", (req, res) => {
                         fileData.push(chunks[i].data.toString('base64'));
                     }
                     //Display the chunks using the data URI format
-                    let finalFile = 'data:' + docs[0].contentType + ';base64,' + fileData.join('');
+                    let finalFile = 'data:' + docs[0]?.contentType + ';base64,' + fileData.join('');
                     return res.status(200).send(finalFile);
                 });
             } else {
