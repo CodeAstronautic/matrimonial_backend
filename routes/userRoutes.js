@@ -208,11 +208,12 @@ router.post("/edituser", auth, async(req, res) => {
     const foundUser = await User.findOne({
         _id: mongoose.Types.ObjectId(userId),
     });
+    console.log(foundUser , "found")
     User.findOneAndUpdate({
             _id: mongoose.Types.ObjectId(userId),
         }, {
             $set: {
-                name: name,
+                name: name|| foundUser.name,
                 email: email,
                 maritalState: maritalState,
                 contactDetails: {
@@ -233,66 +234,66 @@ router.post("/edituser", auth, async(req, res) => {
                         req.body.EducationAndCareer.ProfessionalArea,
                 },
                 BasicsAndLifestyle: {
-                    Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age,
+                    Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age|| foundUser.BasicsAndLifestyle[0].Age,
                     DateofBirth: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.DateofBirth,
+                        req.body.BasicsAndLifestyle.DateofBirth||foundUser.BasicsAndLifestyle[0].DateofBirth,
                     MaritalStatus: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.MaritalStatus,
-                    Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height,
-                    Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin,
-                    Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet,
+                        req.body.BasicsAndLifestyle.MaritalStatus||foundUser.BasicsAndLifestyle[0].MaritalStatus,
+                    Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height||foundUser.BasicsAndLifestyle[0].Height,
+                    Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin||foundUser.BasicsAndLifestyle[0].Grewupin,
+                    Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet||foundUser.BasicsAndLifestyle[0].Diet,
                     PersonalValues: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.PersonalValues,
-                    SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign,
+                        req.body.BasicsAndLifestyle.PersonalValues||foundUser.BasicsAndLifestyle[0].PersonalValues,
+                    SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign||foundUser.BasicsAndLifestyle[0].SunSign,
                     BloodGroup: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.BloodGroup,
-                    Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal,
+                        req.body.BasicsAndLifestyle.BloodGroup||foundUser.BasicsAndLifestyle[0].BloodGroup,
+                    Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal||foundUser.BasicsAndLifestyle[0].Heal,
                 },
                 ReligiousBackground: {
                     Religion: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.Religion,
+                        req.body.ReligiousBackground.Religion||foundUser.ReligiousBackground[0].Religion,
                     Community: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.Community,
+                        req.body.ReligiousBackground.Community||foundUser.ReligiousBackground[0].Community,
                     SubCommunity: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.SubCommunity,
+                        req.body.ReligiousBackground.SubCommunity||foundUser.ReligiousBackground[0].SubCommunity,
                     MotherTongue: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.MotherTongue,
+                        req.body.ReligiousBackground.MotherTongue||foundUser.ReligiousBackground[0].MotherTongue,
                     CanSpeak: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.CanSpeak,
+                        req.body.ReligiousBackground.CanSpeak||foundUser.ReligiousBackground[0].CanSpeak,
                 },
                 Familydetails: {
-                    FatherStatus: req.body.Familydetails && req.body.Familydetails.FatherStatus,
-                    MotherStatus: req.body.Familydetails && req.body.Familydetails.MotherStatus,
-                    FamilyLocation: req.body.Familydetails && req.body.Familydetails.FamilyLocation,
-                    NativePlace: req.body.Familydetails && req.body.Familydetails.NativePlace,
-                    NoofBrothers: req.body.Familydetails && req.body.Familydetails.NoofBrothers,
-                    NoofSisters: req.body.Familydetails && req.body.Familydetails.NoofSisters,
-                    FamilyType: req.body.Familydetails && req.body.Familydetails.FamilyType,
-                    FamilyValues: req.body.Familydetails && req.body.Familydetails.FamilyValues,
-                    FamilyAffluence: req.body.Familydetails && req.body.Familydetails.FamilyAffluence,
+                    FatherStatus: req.body.Familydetails && req.body.Familydetails.FatherStatus||foundUser.ReligiousBackground[0].FatherStatus,
+                    MotherStatus: req.body.Familydetails && req.body.Familydetails.MotherStatus||foundUser.ReligiousBackground[0].MotherStatus,
+                    FamilyLocation: req.body.Familydetails && req.body.Familydetails.FamilyLocation||foundUser.ReligiousBackground[0].FamilyLocation,
+                    NativePlace: req.body.Familydetails && req.body.Familydetails.NativePlace||foundUser.ReligiousBackground[0].NoofBrothers,
+                    NoofBrothers: req.body.Familydetails && req.body.Familydetails.NoofBrothers||foundUser.ReligiousBackground[0].NoofBrothers,
+                    NoofSisters: req.body.Familydetails && req.body.Familydetails.NoofSisters||foundUser.ReligiousBackground[0].NoofSisters,
+                    FamilyType: req.body.Familydetails && req.body.Familydetails.FamilyType||foundUser.ReligiousBackground[0].FamilyType,
+                    FamilyValues: req.body.Familydetails && req.body.Familydetails.FamilyValues||foundUser.ReligiousBackground[0].FamilyValues,
+                    FamilyAffluence: req.body.Familydetails && req.body.Familydetails.FamilyAffluence||foundUser.ReligiousBackground[0].FamilyAffluence,
                 },
                 LocationofGroom: {
-                    CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence,
-                    StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence,
-                    ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus,
-                    ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode,
+                    CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence||foundUser.LocationofGroom[0].CurrentResidence,
+                    StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence||foundUser.LocationofGroom[0].StateofResidence,
+                    ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus||foundUser.LocationofGroom[0].ResidencyStatus,
+                    ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode||foundUser.LocationofGroom[0].ZipPincode,
                 },
                 HobbiesInterestsMore: {
-                    Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies,
-                    Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests,
-                    FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic,
-                    FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads,
-                    preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies,
-                    SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities,
-                    FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine,
-                    PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle,
+                    Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies||foundUser.HobbiesInterestsMore[0].Hobbies,
+                    Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests||foundUser.HobbiesInterestsMore[0].Interests,
+                    FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic||foundUser.HobbiesInterestsMore[0].FavouriteMusic,
+                    FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads||foundUser.HobbiesInterestsMore[0].FavouriteReads,
+                    preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies||foundUser.HobbiesInterestsMore[0].preferredMovies,
+                    SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities||foundUser.HobbiesInterestsMore[0].SportsFitnessActivities,
+                    FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine||foundUser.HobbiesInterestsMore[0].FavouriteCusisine,
+                    PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle||foundUser.HobbiesInterestsMore[0].PreferredDressStyle,
                 },
                 BasicInfo: {
-                    Age: req.body.BasicInfo && req.body.BasicInfo.Age,
-                    Height: req.body.BasicInfo && req.body.BasicInfo.Height,
-                    Religion: req.body.BasicInfo && req.body.BasicInfo.Religion,
-                    Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue,
-                    MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus,
+                    Age: req.body.BasicInfo && req.body.BasicInfo.Age|| foundUser.BasicInfo[0].Age,
+                    Height: req.body.BasicInfo && req.body.BasicInfo.Height|| foundUser.BasicInfo[0].Height,
+                    Religion: req.body.BasicInfo && req.body.BasicInfo.Religion|| foundUser.BasicInfo[0].Religion,
+                    Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue|| foundUser.BasicInfo[0].Mothertongue,
+                    MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus|| foundUser.BasicInfo[0].MaritalStatus,
                 },
                 Religion: Religion,
                 Age: Age,
