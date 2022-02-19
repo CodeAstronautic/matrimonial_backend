@@ -65,10 +65,12 @@ router.get("/filter", async (req, res) => {
 router.get("/basic-search", async (req, res) => {
   const filters = req.query;
   const userById = await User.find();
-  console.log(userById.length, "useruser");
+  console.log(userById, "useruser");
+  console.log("filteredUsers", filters)
 
   const filteredUsers = userById.filter((user) => {
-    if (user.Age == filters?.age) {
+    console.log(user, user.Age == filters?.age)
+    if (user?.BasicsAndLifestyle[0]?.Age == filters?.age) {
       return true;
     }
   });
@@ -81,7 +83,7 @@ router.get("/advance-search", async (req, res) => {
   console.log(userById.length, "useruser");
 
   const filteredUsers = userById.filter((user) => {
-    if (user.Age == filters?.age) {
+    if (user?.BasicsAndLifestyle[0]?.Age == filters?.age) {
       return true;
     }
   });
