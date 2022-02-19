@@ -47,34 +47,43 @@ router.get("/getpartners", async (req, res) => {
 
 router.get("/filter", async (req, res) => {
   const filters = req.query;
-  const userById = await User.find();
-  console.log(userById.length, "useruser");
+  console.log(filters)
+  const userById = await User.findById(filters?.id);
+  console.log(userById, "useruser");
 
-  const filteredUsers = userById.filter((user) => {
-    if (
-      user.maritalState == filters?.maritalStatus ||
-      user.Age == filters?.age ||
-      user?.MotherTongue == filters?.motherTongue
-    ) {
-      return true;
-    }
-  });
-  res.json(filteredUsers);
+  res.json(userById);
 });
 
 router.get("/basic-search", async (req, res) => {
-  const filters = req.query;
+  var filters = req.query;
   const userById = await User.find();
-  console.log(userById, "useruser");
-  console.log("filteredUsers", filters)
+  // console.log(userById[userById.length-1], "useruser");
+  // console.log("filteredUsers", filters)
 
-  const filteredUsers = userById.filter((user) => {
-    console.log(user, user.Age == filters?.age)
-    if (user?.BasicsAndLifestyle[0]?.Age == filters?.age) {
+  const AgefilteredUsers = userById.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+    if (parseInt(user?.BasicsAndLifestyle[0]?.Age) >= parseInt(filters?.age) &&parseInt(user?.BasicsAndLifestyle[0]?.Age) <= parseInt(filters?.ageTo)) {
       return true;
     }
   });
-  res.json(filteredUsers);
+
+  const MotherTongueFilteredUsers = AgefilteredUsers.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+  
+    if (user?.ReligiousBackground[0]?.MotherTongue?.toUpperCase()==filters?.motherTongue?.toUpperCase()) {
+      return true;
+    }
+  });
+  const MaritalStatusFilteredUsers = MotherTongueFilteredUsers.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+    if (user?.BasicsAndLifestyle[0]?.MaritalStatus==filters?.maritalStatus) {
+      return true;
+    }
+  });
+
+
+
+  res.json(MaritalStatusFilteredUsers);
 });
 
 router.get("/advance-search", async (req, res) => {
