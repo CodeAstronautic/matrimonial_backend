@@ -3,7 +3,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Partner = require("../models/lifeParner");
 const auth = require("../middlewares/auth");
-const User =require("../models/user")
+const User = require("../models/user");
+
 router.post("/partner", auth, async (req, res) => {
   const { age, height, maritalStatus, religion, community, motherTongue } =
     req.body;
@@ -43,17 +44,44 @@ router.get("/getpartners", async (req, res) => {
   console.log(userById, "new");
   res.send(userById);
 });
+
 router.get("/filter", async (req, res) => {
   const filters = req.query;
   const userById = await User.find();
-  console.log(userById.length,"useruser")
+  console.log(userById.length, "useruser");
 
   const filteredUsers = userById.filter((user) => {
     if (
       user.maritalState == filters?.maritalStatus ||
       user.Age == filters?.age ||
-      user?.MotherTongue == filters?.motherTongue 
+      user?.MotherTongue == filters?.motherTongue
     ) {
+      return true;
+    }
+  });
+  res.json(filteredUsers);
+});
+
+router.get("/basic-search", async (req, res) => {
+  const filters = req.query;
+  const userById = await User.find();
+  console.log(userById.length, "useruser");
+
+  const filteredUsers = userById.filter((user) => {
+    if (user.Age == filters?.age) {
+      return true;
+    }
+  });
+  res.json(filteredUsers);
+});
+
+router.get("/advance-search", async (req, res) => {
+  const filters = req.query;
+  const userById = await User.find();
+  console.log(userById.length, "useruser");
+
+  const filteredUsers = userById.filter((user) => {
+    if (user.Age == filters?.age) {
       return true;
     }
   });
