@@ -47,7 +47,7 @@ router.get("/getpartners", async (req, res) => {
 
 router.get("/filter", async (req, res) => {
   const filters = req.query;
-  console.log(filters)
+  console.log(filters);
   const userById = await User.findById(filters?.id);
   console.log(userById, "useruser");
 
@@ -62,41 +62,85 @@ router.get("/basic-search", async (req, res) => {
 
   const AgefilteredUsers = userById.filter((user) => {
     // console.log(user, user.Age == filters?.age)
-    if (parseInt(user?.BasicsAndLifestyle[0]?.Age) >= parseInt(filters?.age) &&parseInt(user?.BasicsAndLifestyle[0]?.Age) <= parseInt(filters?.ageTo)) {
+    if (
+      parseInt(user?.BasicsAndLifestyle[0]?.Age) >= parseInt(filters?.age) &&
+      parseInt(user?.BasicsAndLifestyle[0]?.Age) <= parseInt(filters?.ageTo)
+    ) {
       return true;
     }
   });
 
   const MotherTongueFilteredUsers = AgefilteredUsers.filter((user) => {
     // console.log(user, user.Age == filters?.age)
-  
-    if (user?.ReligiousBackground[0]?.MotherTongue?.toUpperCase()==filters?.motherTongue?.toUpperCase()) {
+
+    if (
+      user?.ReligiousBackground[0]?.MotherTongue?.toUpperCase() ==
+      filters?.motherTongue?.toUpperCase()
+    ) {
       return true;
     }
   });
-  const MaritalStatusFilteredUsers = MotherTongueFilteredUsers.filter((user) => {
-    // console.log(user, user.Age == filters?.age)
-    if (user?.BasicsAndLifestyle[0]?.MaritalStatus==filters?.maritalStatus) {
-      return true;
+  const MaritalStatusFilteredUsers = MotherTongueFilteredUsers.filter(
+    (user) => {
+      // console.log(user, user.Age == filters?.age)
+      if (
+        user?.BasicsAndLifestyle[0]?.MaritalStatus == filters?.maritalStatus
+      ) {
+        return true;
+      }
     }
-  });
-
-
-
+  );
   res.json(MaritalStatusFilteredUsers);
 });
 
 router.get("/advance-search", async (req, res) => {
   const filters = req.query;
   const userById = await User.find();
-  console.log(userById.length, "useruser");
-
-  const filteredUsers = userById.filter((user) => {
-    if (user?.BasicsAndLifestyle[0]?.Age == filters?.age) {
+  const AgefilteredUsers = userById.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+    if (
+      parseInt(user?.BasicsAndLifestyle[0]?.Age) >= parseInt(filters?.age) &&
+      parseInt(user?.BasicsAndLifestyle[0]?.Age) <= parseInt(filters?.ageTo)
+    ) {
       return true;
     }
   });
-  res.json(filteredUsers);
+
+  const MotherTongueFilteredUsers = AgefilteredUsers.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+
+    if (
+      user?.ReligiousBackground[0]?.MotherTongue?.toUpperCase() ==
+      filters?.motherTongue?.toUpperCase()
+    ) {
+      return true;
+    }
+  });
+  const MaritalStatusFilteredUsers = MotherTongueFilteredUsers.filter(
+    (user) => {
+      // console.log(user, user.Age == filters?.age)
+      if (
+        user?.BasicsAndLifestyle[0]?.MaritalStatus == filters?.maritalStatus
+      ) {
+        return true;
+      }
+    }
+  );
+  const LocationUserFiltered = MaritalStatusFilteredUsers.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+    if (
+      user?.LocationofGroom[0]?.StateofResidence == filters?.StateofResidence
+    ) {
+      return true;
+    }
+  });
+  const FamilyFilterd = LocationUserFiltered.filter((user) => {
+    // console.log(user, user.Age == filters?.age)
+    if (user?.Familydetails[0]?.FatherStatus == filters?.FatherStatus) {
+      return true;
+    }
+  });
+  res.json(FamilyFilterd);
 });
 
 module.exports = router;
