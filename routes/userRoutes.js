@@ -65,25 +65,25 @@ const upload = multer({ storage });
 
 // get all users
 
-router.get("/users", async(req, res) => {
+router.get("/users", async (req, res) => {
     const allUsers = await User.find().select("-password");
     res.send(allUsers);
 });
 
 // get user by id
 
-router.get("/getuser/:userid", async(req, res) => {
+router.get("/getuser/:userid", async (req, res) => {
     console.log(req.params.userid)
     const userById = await User.findOne({
         _id: req.params.userid.toString(),
     });
-   
+console.log(userById,"dfsfsd")
     res.send(userById);
 });
 
 // get auth info
 
-router.get("/getauth", auth, async(req, res) => {
+router.get("/getauth", auth, async (req, res) => {
     User.findOne({ _id: mongoose.Types.ObjectId(req.tokenUser.userId) })
         .then((result) => {
             res.status(200).send(result);
@@ -95,7 +95,7 @@ router.get("/getauth", auth, async(req, res) => {
 
 // register new user
 
-router.post("/register", async(req, res) => {
+router.post("/register", async (req, res) => {
 
     if (req.body.password.length < 6) {
         return res.json({ err: "Password must be at least 6 characters" });
@@ -132,41 +132,41 @@ router.post("/register", async(req, res) => {
                     name: result.name
                 },
             },
-            "local development secret"
-        );
+                "local development secret"
+            );
 
-        const userInfo = {
-            age: result.age,
-            city: result.city,
-            name: result.name,
-            email: result.email,
-            profilePicId: result.profilePicId,
-            coverPicId: result.coverPicId,
-            _id: result._id,
-        };
+            const userInfo = {
+                age: result.age,
+                city: result.city,
+                name: result.name,
+                email: result.email,
+                profilePicId: result.profilePicId,
+                coverPicId: result.coverPicId,
+                _id: result._id,
+            };
 
-        res.json({
-            status: "success",
-            message: "Signup successful",
-            data: {
-                user: userInfo,
-                token,
-            },
-        });
+            res.json({
+                status: "success",
+                message: "Signup successful",
+                data: {
+                    user: userInfo,
+                    token,
+                },
+            });
         })
 
-    .catch((err) => {
-        res.status(400).send(err);
-    });
+        .catch((err) => {
+            res.status(400).send(err);
+        });
 });
 
 // user login
 
-router.post("/login", async(req, res) => {
+router.post("/login", async (req, res) => {
     if (!req.body.email || !req.body.password) {
         return res.send({ err: "all fields required" });
     }
-    User.findOne({ email: req.body.email }, async function(err, user) {
+    User.findOne({ email: req.body.email }, async function (err, user) {
         if (err) {
             return res.json({
                 err: "Sorry, there is an issue with connecting to the database. We are working on fixing this.",
@@ -181,12 +181,12 @@ router.post("/login", async(req, res) => {
             );
             if (passwordsMatch) {
                 const token = jwt.sign({
-                        tokenUser: {
-                            userId: user._id,
-                            email: user.email,
-                            name: user.name
-                        },
+                    tokenUser: {
+                        userId: user._id,
+                        email: user.email,
+                        name: user.name
                     },
+                },
                     "local development secret"
                 );
 
@@ -217,7 +217,7 @@ router.post("/login", async(req, res) => {
 
 //    update user
 
-router.post("/edituser", auth, async(req, res) => {
+router.post("/edituser", auth, async (req, res) => {
     const {
         name,
         email,
@@ -237,105 +237,105 @@ router.post("/edituser", auth, async(req, res) => {
     const foundUser = await User.findOne({
         _id: mongoose.Types.ObjectId(userId),
     });
-    console.log(foundUser , "found",req.body)
+    console.log(foundUser, "found", req.body)
     User.findOneAndUpdate({
-            _id: mongoose.Types.ObjectId(userId),
-        }, {
-            $set: {
-                name: name|| foundUser.name,
-                email: email,
-                maritalState: maritalState,
-                contactDetails: {
-                    state: req.body.contactDetails && req.body.contactDetails.state,
-                    Country: req.body.contactDetails && req.body.contactDetails.Country,
-                    city: req.body.contactDetails && req.body.contactDetails.city,
-                },
-                EducationAndCareer: {
-                    HighestQualification: req.body.EducationAndCareer &&req.body.EducationAndCareer.HighestQualification || foundUser.EducationAndCareer[0]?.HighestQualification,
-                    WorkingAs: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.WorkingAs || foundUser.EducationAndCareer[0]?.WorkingAs,
-                    AnnualIncome: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.AnnualIncome || foundUser.EducationAndCareer[0]?.AnnualIncome,
-                    Workingwith: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.Workingwith || foundUser.EducationAndCareer[0]?.Workingwith,
-                    ProfessionalArea: req.body.EducationAndCareer &&
-                        req.body.EducationAndCareer.ProfessionalArea || foundUser.EducationAndCareer[0]?.ProfessionalArea,
-                },
-                BasicsAndLifestyle: {
-                    Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age|| foundUser.BasicsAndLifestyle[0]?.Age,
-                    DateofBirth: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.DateofBirth||foundUser.BasicsAndLifestyle[0]?.DateofBirth,
-                    MaritalStatus: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.MaritalStatus||foundUser.BasicsAndLifestyle[0]?.MaritalStatus,
-                    Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height||foundUser.BasicsAndLifestyle[0]?.Height,
-                    Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin||foundUser.BasicsAndLifestyle[0]?.Grewupin,
-                    Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet||foundUser.BasicsAndLifestyle[0]?.Diet,
-                    PersonalValues: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.PersonalValues||foundUser.BasicsAndLifestyle[0]?.PersonalValues,
-                    SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign||foundUser.BasicsAndLifestyle[0]?.SunSign,
-                    BloodGroup: req.body.BasicsAndLifestyle &&
-                        req.body.BasicsAndLifestyle.BloodGroup||foundUser.BasicsAndLifestyle[0]?.BloodGroup,
-                    Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal||foundUser.BasicsAndLifestyle[0]?.Heal,
-                },
-                ReligiousBackground: {
-                    Religion: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.Religion||foundUser.ReligiousBackground[0]?.Religion,
-                    Community: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.Community||foundUser.ReligiousBackground[0]?.Community,
-                    SubCommunity: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.SubCommunity||foundUser.ReligiousBackground[0]?.SubCommunity,
-                    MotherTongue: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.MotherTongue||foundUser.ReligiousBackground[0]?.MotherTongue,
-                    CanSpeak: req.body.ReligiousBackground &&
-                        req.body.ReligiousBackground.CanSpeak||foundUser.ReligiousBackground[0]?.CanSpeak,
-                },
-                Familydetails: {
-                    FatherStatus: req.body.Familydetails && req.body.Familydetails.FatherStatus||foundUser.Familydetails[0]?.FatherStatus,
-                    MotherStatus: req.body.Familydetails && req.body.Familydetails.MotherStatus||foundUser.Familydetails[0]?.MotherStatus,
-                    FamilyLocation: req.body.Familydetails && req.body.Familydetails.FamilyLocation||foundUser.Familydetails[0]?.FamilyLocation,
-                    NativePlace: req.body.Familydetails && req.body.Familydetails.NativePlace||foundUser.Familydetails[0]?.NoofBrothers,
-                    NoofBrothers: req.body.Familydetails && req.body.Familydetails.NoofBrothers||foundUser.Familydetails[0]?.NoofBrothers,
-                    NoofSisters: req.body.Familydetails && req.body.Familydetails.NoofSisters||foundUser.Familydetails[0]?.NoofSisters,
-                    FamilyType: req.body.Familydetails && req.body.Familydetails.FamilyType||foundUser.Familydetails[0]?.FamilyType,
-                    FamilyValues: req.body.Familydetails && req.body.Familydetails.FamilyValues||foundUser.Familydetails[0]?.FamilyValues,
-                    FamilyAffluence: req.body.Familydetails && req.body.Familydetails.FamilyAffluence||foundUser.Familydetails[0]?.FamilyAffluence,
-                },
-                LocationofGroom: {
-                    CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence||foundUser.LocationofGroom[0]?.CurrentResidence,
-                    StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence||foundUser.LocationofGroom[0]?.StateofResidence,
-                    ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus||foundUser.LocationofGroom[0]?.ResidencyStatus,
-                    ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode||foundUser.LocationofGroom[0]?.ZipPincode,
-                },
-                HobbiesInterestsMore: {
-                    Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies||foundUser.HobbiesInterestsMore[0]?.Hobbies,
-                    Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests||foundUser.HobbiesInterestsMore[0]?.Interests,
-                    FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic||foundUser.HobbiesInterestsMore[0]?.FavouriteMusic,
-                    FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads||foundUser.HobbiesInterestsMore[0]?.FavouriteReads,
-                    preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies||foundUser.HobbiesInterestsMore[0]?.preferredMovies,
-                    SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities||foundUser.HobbiesInterestsMore[0]?.SportsFitnessActivities,
-                    FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine||foundUser.HobbiesInterestsMore[0]?.FavouriteCusisine,
-                    PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle||foundUser.HobbiesInterestsMore[0]?.PreferredDressStyle,
-                },
-                BasicInfo: {
-                    Age: req.body.BasicInfo && req.body.BasicInfo.Age|| foundUser.BasicInfo[0]?.Age,
-                    Height: req.body.BasicInfo && req.body.BasicInfo.Height|| foundUser.BasicInfo[0]?.Height,
-                    Religion: req.body.BasicInfo && req.body.BasicInfo.Religion|| foundUser.BasicInfo[0]?.Religion,
-                    Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue|| foundUser.BasicInfo[0]?.Mothertongue,
-                    MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus|| foundUser.BasicInfo[0]?.MaritalStatus,
-                },
-                Religion: Religion,
-                Age: Age,
-                MotherTongue: MotherTongue,
-                locaion: locaion,
-                Height: Height,
-                dateOfBirth: dateOfBirth,
-                Diet: Diet,
-                sunSign: sunSign,
-                Heal: Heal,
+        _id: mongoose.Types.ObjectId(userId),
+    }, {
+        $set: {
+            name: name || foundUser?.name,
+            email: email,
+            maritalState: maritalState,
+            contactDetails: {
+                state: req.body.contactDetails && req.body.contactDetails?.state,
+                Country: req.body.contactDetails && req.body.contactDetails?.Country,
+                city: req.body.contactDetails && req.body.contactDetails?.city,
             },
-        }, { new: true })
+            EducationAndCareer: {
+                HighestQualification: req.body.EducationAndCareer && req.body.EducationAndCareer.HighestQualification || foundUser?.EducationAndCareer[0]?.HighestQualification,
+                WorkingAs: req.body.EducationAndCareer &&
+                    req.body.EducationAndCareer.WorkingAs || foundUser?.EducationAndCareer[0]?.WorkingAs,
+                AnnualIncome: req.body.EducationAndCareer &&
+                    req.body.EducationAndCareer.AnnualIncome || foundUser?.EducationAndCareer[0]?.AnnualIncome,
+                Workingwith: req.body.EducationAndCareer &&
+                    req.body.EducationAndCareer.Workingwith || foundUser?.EducationAndCareer[0]?.Workingwith,
+                ProfessionalArea: req.body.EducationAndCareer &&
+                    req.body.EducationAndCareer.ProfessionalArea || foundUser?.EducationAndCareer[0]?.ProfessionalArea,
+            },
+            BasicsAndLifestyle: {
+                Age: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Age || foundUser?.BasicsAndLifestyle[0]?.Age,
+                DateofBirth: req.body.BasicsAndLifestyle &&
+                    req.body.BasicsAndLifestyle.DateofBirth || foundUser?.BasicsAndLifestyle[0]?.DateofBirth,
+                MaritalStatus: req.body.BasicsAndLifestyle &&
+                    req.body.BasicsAndLifestyle.MaritalStatus || foundUser?.BasicsAndLifestyle[0]?.MaritalStatus,
+                Height: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Height || foundUser?.BasicsAndLifestyle[0]?.Height,
+                Grewupin: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Grewupin || foundUser?.BasicsAndLifestyle[0]?.Grewupin,
+                Diet: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Diet || foundUser?.BasicsAndLifestyle[0]?.Diet,
+                PersonalValues: req.body.BasicsAndLifestyle &&
+                    req.body.BasicsAndLifestyle.PersonalValues || foundUser?.BasicsAndLifestyle[0]?.PersonalValues,
+                SunSign: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.SunSign || foundUser?.BasicsAndLifestyle[0]?.SunSign,
+                BloodGroup: req.body.BasicsAndLifestyle &&
+                    req.body.BasicsAndLifestyle.BloodGroup || foundUser?.BasicsAndLifestyle[0]?.BloodGroup,
+                Heal: req.body.BasicsAndLifestyle && req.body.BasicsAndLifestyle.Heal || foundUser?.BasicsAndLifestyle[0]?.Heal,
+            },
+            ReligiousBackground: {
+                Religion: req.body.ReligiousBackground &&
+                    req.body.ReligiousBackground.Religion || foundUser?.ReligiousBackground[0]?.Religion,
+                Community: req.body.ReligiousBackground &&
+                    req.body.ReligiousBackground.Community || foundUser?.ReligiousBackground[0]?.Community,
+                SubCommunity: req.body.ReligiousBackground &&
+                    req.body.ReligiousBackground.SubCommunity || foundUser?.ReligiousBackground[0]?.SubCommunity,
+                MotherTongue: req.body.ReligiousBackground &&
+                    req.body.ReligiousBackground.MotherTongue || foundUser?.ReligiousBackground[0]?.MotherTongue,
+                CanSpeak: req.body.ReligiousBackground &&
+                    req.body.ReligiousBackground.CanSpeak || foundUser?.ReligiousBackground[0]?.CanSpeak,
+            },
+            Familydetails: {
+                FatherStatus: req.body.Familydetails && req.body.Familydetails.FatherStatus || foundUser?.Familydetails[0]?.FatherStatus,
+                MotherStatus: req.body.Familydetails && req.body.Familydetails.MotherStatus || foundUser?.Familydetails[0]?.MotherStatus,
+                FamilyLocation: req.body.Familydetails && req.body.Familydetails.FamilyLocation || foundUser?.Familydetails[0]?.FamilyLocation,
+                NativePlace: req.body.Familydetails && req.body.Familydetails.NativePlace || foundUser?.Familydetails[0]?.NoofBrothers,
+                NoofBrothers: req.body.Familydetails && req.body.Familydetails.NoofBrothers || foundUser?.Familydetails[0]?.NoofBrothers,
+                NoofSisters: req.body.Familydetails && req.body.Familydetails.NoofSisters || foundUser?.Familydetails[0]?.NoofSisters,
+                FamilyType: req.body.Familydetails && req.body.Familydetails.FamilyType || foundUser?.Familydetails[0]?.FamilyType,
+                FamilyValues: req.body.Familydetails && req.body.Familydetails.FamilyValues || foundUser?.Familydetails[0]?.FamilyValues,
+                FamilyAffluence: req.body.Familydetails && req.body.Familydetails.FamilyAffluence || foundUser?.Familydetails[0]?.FamilyAffluence,
+            },
+            LocationofGroom: {
+                CurrentResidence: req.body.LocationofGroom && req.body.LocationofGroom.CurrentResidence || foundUser?.LocationofGroom[0]?.CurrentResidence,
+                StateofResidence: req.body.LocationofGroom && req.body.LocationofGroom.StateofResidence || foundUser?.LocationofGroom[0]?.StateofResidence,
+                ResidencyStatus: req.body.LocationofGroom && req.body.LocationofGroom.ResidencyStatus || foundUser?.LocationofGroom[0]?.ResidencyStatus,
+                ZipPincode: req.body.LocationofGroom && req.body.LocationofGroom.ZipPincode || foundUser?.LocationofGroom[0]?.ZipPincode,
+            },
+            HobbiesInterestsMore: {
+                Hobbies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Hobbies || foundUser?.HobbiesInterestsMore[0]?.Hobbies,
+                Interests: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.Interests || foundUser?.HobbiesInterestsMore[0]?.Interests,
+                FavouriteMusic: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteMusic || foundUser?.HobbiesInterestsMore[0]?.FavouriteMusic,
+                FavouriteReads: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteReads || foundUser?.HobbiesInterestsMore[0]?.FavouriteReads,
+                preferredMovies: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.preferredMovies || foundUser?.HobbiesInterestsMore[0]?.preferredMovies,
+                SportsFitnessActivities: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.SportsFitnessActivities || foundUser?.HobbiesInterestsMore[0]?.SportsFitnessActivities,
+                FavouriteCusisine: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.FavouriteCusisine || foundUser?.HobbiesInterestsMore[0]?.FavouriteCusisine,
+                PreferredDressStyle: req.body.HobbiesInterestsMore && req.body.HobbiesInterestsMore.PreferredDressStyle || foundUser?.HobbiesInterestsMore[0]?.PreferredDressStyle,
+            },
+            BasicInfo: {
+                Age: req.body.BasicInfo && req.body.BasicInfo.Age || foundUser?.BasicInfo[0]?.Age,
+                Height: req.body.BasicInfo && req.body.BasicInfo.Height || foundUser?.BasicInfo[0]?.Height,
+                Religion: req.body.BasicInfo && req.body.BasicInfo.Religion || foundUser?.BasicInfo[0]?.Religion,
+                Mothertongue: req.body.BasicInfo && req.body.BasicInfo.Mothertongue || foundUser?.BasicInfo[0]?.Mothertongue,
+                MaritalStatus: req.body.BasicInfo && req.body.BasicInfo.MaritalStatus || foundUser?.BasicInfo[0]?.MaritalStatus,
+            },
+            Religion: Religion,
+            Age: Age,
+            MotherTongue: MotherTongue,
+            locaion: locaion,
+            Height: Height,
+            dateOfBirth: dateOfBirth,
+            Diet: Diet,
+            sunSign: sunSign,
+            Heal: Heal,
+        },
+    }, { new: true })
         .then((result) => {
-            console.log(result , "result")
+            console.log(result, "result")
             res.send(result);
 
         })
@@ -350,17 +350,19 @@ router.post(
     "/editprofilepic/",
     auth,
     upload.single("image"),
-    async(req, res) => {
-        gfs.files.findOne({ _id: req.file.id }, async(err, file) => {
+    async (req, res) => {
+        gfs.files.findOne({ _id: req?.file?.id }, async (err, file) => {
+            console.log(file, "kjgldkfgjldkfjg")
             if (!file || file.length === 0) {
                 return res
                     .status(404)
                     .json({ err: "no file exists, file upload failed" });
             }
             const updatedUser = await User.findOneAndUpdate({ _id: req.tokenUser.userId }, {
-                profilePicId: file.filename,
+                $set: { profilePicId: file.filename },
             }, { new: true });
-            return res.json(updatedUser);
+            console.log(updatedUser, "updatedUserupdatedUser")
+            return res.json({updatedUser:file.filename});
         });
     }
 );
@@ -369,7 +371,7 @@ router.get("/:filename", (req, res) => {
     let fileName = req.params.filename;
     let dbName = "Matrimonial";
     //Connect to the MongoDB client
-    MongoClient.connect("mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority", function(err, client) {
+    MongoClient.connect("mongodb+srv://pooja1012:zZp5MO7JTvgz57Yq@cluster0.ppwwi.mongodb.net/Matrimonial?retryWrites=true&w=majority", function (err, client) {
         if (err) {
             return res.send({ title: 'Uploaded Error', message: 'MongoClient Connection error', error: err.errMsg });
         }
@@ -377,9 +379,9 @@ router.get("/:filename", (req, res) => {
 
         const collection = db.collection('uploads.files');
         const collectionChunks = db.collection('uploads.chunks');
-        collection.find({ filename: fileName }).toArray(function(err, docs) {
+        collection.find({ filename: fileName }).toArray(function (err, docs) {
             if (docs) {
-                collectionChunks.find({ files_id: docs[0] && docs[0]?._id }).sort({ n: 1 }).toArray(function(err, chunks) {
+                collectionChunks.find({ files_id: docs[0] && docs[0]?._id }).sort({ n: 1 }).toArray(function (err, chunks) {
                     if (err) {
                         return res.send({ title: 'Download Error', message: 'Error retrieving chunks', error: err.errmsg });
                     }
